@@ -6,7 +6,7 @@ The easiest way to add data to a Context object is to use the `@memo` macro for 
 
 ## Motivation
 
-This package is conceived to satisfy the need of logging contextual data to Splunk.  For example, when processing a data request, we may work through several functions.  We use `@info` logging statement everywhere, but for the same request we want to output contexual information such as run id, portfolio number, etc.
+This package is conceived to satisfy the need of logging contextual data with ease.  For example, when processing a data request, we may work through several functions.  We use `@info` logging statement everywhere, but for the same request we want to output contexual information such as a UUID, request id, etc.
 
 ## Usage
 
@@ -69,7 +69,7 @@ julia> c.data
 
 ### Using ContextLogger
 
-This package comes with a simple logger that displays the context path and data in single line, key-value pair format.  This is useful for log analysis programs like Splunk.
+This package comes with a simple logger that displays the context path and data in single line, key-value pair format.  This is useful for log analysis programs that parses and index log data in a database.
 
 Continue with the above example, 
 
