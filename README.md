@@ -10,7 +10,7 @@ Suppose that we are processing a web request.  We may want to create a request i
 
 It may seems somewhat redundant to log the same data multiple times but it is invaluable in debugging production problems and even analyzing system performance.  Imagine that two users are hitting the same web request at the same time.  If we look at the log file, everything could be interleaving and it would be quite confusing without the context.
 
-In microservices design, Correlation ID is used to track the activities of a transaction across multiple services.  When all microservices output the same Correlation ID to the log, we can trace the complete path of the distributed system.
+In microservices design, Correlation ID is used to track the activities of a transaction across multiple services.  When all microservices output the same Correlation ID to the log, we can trace the complete path of the process.
 
 ## Usage
 
