@@ -1,6 +1,6 @@
-# ContextTools.jl
+# ContextLib.jl
 
-ContextTools is used to keep track of execution context at run time.  Rather than passing a context object around, it keeps the context in a global variable and provides access via a single function - `context`.
+ContextLib is used to keep track of execution context at run time.  Rather than passing a context object around, it keeps the context in a global variable and provides access via a single function - `context`.
 
 The easiest way to add data to a Context object is to use the `@memo` macro for an assignment statement.  Alternatively, you can just `push!` a key-value pair as Context is backed by a Dict store by default.  To keep track of the context during run time, annotate functions with `@ctx` macro. 
 

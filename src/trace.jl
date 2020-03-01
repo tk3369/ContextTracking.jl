@@ -27,14 +27,14 @@ julia> foo()
 [ Info: Dict{Any,Any}("x" => 1,"_ContextPath" => "Foo")
 ```
 """
-macro ctx(ex, label = nothing)
+macro ctx(ex, label::Symbol)
     ctx = context()
     def = splitdef(ex)
-    name = something(label, string(def[:name]))
+    name = something(label, def[:name])
     def[:body] = quote
         try
             save($ctx)
-            ContextTools._pushappend!($ctx, "_ContextPath", $name)
+            ContextLib.trace!($ctx, $name)
             $(def[:body])
         finally
             restore($ctx)
@@ -50,7 +50,13 @@ Stroe the variable/value from the assigment statement in the current
 context. See usage from [`@ctx`](@ref).
 """
 macro memo(ex)
-    @capture(ex, x_ = y_) || error("Not an assignment")
+    if typeof(ex) === Symbol
+        x = ex
+    elseif @capture(ex, x_ = y_)
+        # intentionally blank since `x` and `y` are already assigned here
+    else
+        error("@memo must be followed by an assignment or a variable name.")
+    end
     sym = QuoteNode(String(x))
     return quote
         val = $(esc(ex))
@@ -58,12 +64,18 @@ macro memo(ex)
     end
 end
 
-function _pushappend!(c::Context{Dict{Any,Any}}, key::AbstractString, s::AbstractString)
-    dct = c.data
+"""
+    trace!(ctx, name)
+
+Push a new value to ctx[key] so
+"""
+function trace!(ctx::Context{Dict{Any,Any}}, name::Symbol)
+    dct = ctx.data
+    key = Symbol(".TracePath")
     if haskey(dct, key)
-        dct[key] = dct[key] * "." * s
+        push!(dct[key], name)
     else
-        dct[key] = s
+        dct[key] = Symbol[name]
     end
     return dct
 end

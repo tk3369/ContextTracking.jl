@@ -14,6 +14,7 @@ struct Context{T}
     history::Stack{T}
 end
 
+
 """
 $(TYPEDSIGNATURES)
 Create a context with the provided container.
@@ -48,9 +49,17 @@ function Base.show(io::IO, c::Context)
     print(io, "Context ", c.name, " with ", c.generations, " generation(s)")
 end
 
+# Standard context management
+
 Base.push!(c::Context, entry) = push!(c.data, entry)
+
+Base.getindex(c::Context, index) = c.data[index]
+
 Base.empty!(c::Context) = empty!(c.data)
+
 Base.length(c::Context) = length(c.data)
+
+# Property interface
 
 Base.propertynames(c::Context) = (:name, :data, :generations)
 

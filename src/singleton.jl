@@ -8,9 +8,10 @@ const context_store_lock = ReentrantLock()
 
 Get a new context object.  If `name` is not passed, then return a global
 context for the current thread.  The `container` must be an object that
-supports `push!`, `empty!`, and `length` functions. The default is `Dict`.
+supports `push!`, `getindex`, `empty!`, and `length` functions.
+The default is `Dict`.
 """
-function context(name::AbstractString = global_context_name(), container = Dict())
+function context(name::AbstractString = default_context_name(), container = Dict())
     try
         lock(context_store_lock)
         get!(context_store, name, Context(name, container))
@@ -19,5 +20,10 @@ function context(name::AbstractString = global_context_name(), container = Dict(
     end
 end
 
-global_context_name() = "Thread-" * string(Base.Threads.threadid())
+"""
+    default_context_name()
+
+Return a context name for the current thread.
+"""
+default_context_name() = "Thread-" * string(Base.Threads.threadid())
 

@@ -1,7 +1,7 @@
-using ContextTools
+using ContextLib
 using Test
 
-@testset "ContextTools.jl" begin
+@testset "ContextLib.jl" begin
 
 @testset "Basic Operation" begin
     c = context()
