@@ -8,7 +8,6 @@ Base.@kwdef struct ContextLogger <: AbstractLogger
     auto_flush::Bool = false
     include_trace_path::Bool = false
     field_separator::String = " "
-
 end
 
 # Loggin extensions
@@ -19,25 +18,33 @@ Logging.min_enabled_level(logger::ContextLogger) = logger.min_level
 
 Logging.catch_exceptions(logger::ContextLogger) = false
 
+# try to avoid locking issue....?
+const splock = Base.Threads.SpinLock()
+
 function Logging.handle_message(logger::ContextLogger,
             level, message, _module, group, id, filepath, line; kwargs...)
-    buf = IOBuffer()
-    iob = IOContext(buf, logger.stream)
-    context_data = key_value_string(context().data,
-                        separator = logger.field_separator,
-                        include_trace_path = logger.include_trace_path)
-    regular_data = key_value_string(kwargs,
-                        separator = logger.field_separator)
-    message_data = format_value(message)
-    println(iob,
-        now(localzone()),
-        " level=", log_level_string(level),
-        "$(logger.field_separator)message=", message_data,
-        length(context_data) > 0 ? "$(logger.field_separator)" : "", context_data,
-        length(regular_data) > 0 ? "$(logger.field_separator)" : "", regular_data)
-    write(logger.stream, take!(buf))
-    logger.auto_flush && flush(logger.stream)
-    return nothing
+    try
+        lock(splock)
+        buf = IOBuffer()
+        iob = IOContext(buf, logger.stream)
+        context_data = key_value_string(context().data,
+                            separator = logger.field_separator,
+                            include_trace_path = logger.include_trace_path)
+        regular_data = key_value_string(kwargs,
+                            separator = logger.field_separator)
+        message_data = format_value(message)
+        println(iob,
+            now(localzone()),
+            " level=", log_level_string(level),
+            "$(logger.field_separator)message=", message_data,
+            length(context_data) > 0 ? "$(logger.field_separator)" : "", context_data,
+            length(regular_data) > 0 ? "$(logger.field_separator)" : "", regular_data)
+        write(logger.stream, take!(buf))
+        logger.auto_flush && flush(logger.stream)
+        return nothing
+    finally
+        unlock(splock)
+    end
 end
 
 # Formatting

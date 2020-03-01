@@ -1,6 +1,6 @@
-using Revise, ContextLib
+# Basic usages of @ctx and @memo macros
 
-# Using @ctx and @memo macros
+using Revise, ContextLib
 
 @ctx function foo()
     @memo a = 1
@@ -69,3 +69,4 @@ end
 2020-03-01T00:06:11.509-08:00 level=INFO message="cool stuffs" a=1 b=2 c=3 x=1 y=hello
 2020-03-01T00:06:11.53-08:00 level=INFO message="after calling bar" a=1 b=2
 =#
+

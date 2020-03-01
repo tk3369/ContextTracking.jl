@@ -55,8 +55,8 @@ The `context` function returns a `Context` object with the following properties:
 julia> c = context()
 Context Thread-1 with 1 generation(s)
 
-julia> c.name
-"Thread-1"
+julia> c.id
+1
 
 julia> c.data
 Dict{Any,Any} with 0 entries
@@ -66,6 +66,7 @@ Dict{Any,Any} with 0 entries
 
 Some thoughts:
 
+- Need more tests especially for the macros and logger
 - ContextLogger should accept any kind of log formatter
 - Allow registering pre/post hooks for specific context updates.
 - Enhance `@memo` macro to accept multiple variable reference

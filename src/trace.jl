@@ -13,14 +13,13 @@ tracking the call path.  Function name is used when the label is not provided.
 macro ctx(ex, label = nothing)
     def = splitdef(ex)
     name = QuoteNode(label !== nothing ? Symbol(label) : def[:name])
-    c = context()
     def[:body] = quote
         try
-            save($c)
-            ContextLib.trace!($c, $name)
+            save(ContextLib.context())
+            ContextLib.trace!(ContextLib.context(), $name)
             $(def[:body])
         finally
-            restore($c)
+            restore(ContextLib.context())
         end
     end
     return esc(combinedef(def))
