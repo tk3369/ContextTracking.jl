@@ -41,10 +41,10 @@ macro memo(ex)
     else
         error("@memo must be followed by an assignment or a variable name.")
     end
-    sym = QuoteNode(String(x))
+    sym = QuoteNode(x)
     return quote
         val = $(esc(ex))
-        push!(context(), $sym => val)
+        push!(ContextLib.context(), $sym => val)
     end
 end
 
