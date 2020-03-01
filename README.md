@@ -8,7 +8,9 @@ Participation of context tracking is voluntary - you must annotate functions wit
 
 Suppose that we are processing a web request.  We may want to create a request id to keep track of the request and include the request id whenever we write anything to the log file.
 
-It may seems somewhat redundant but it is invaluable in tracing production problems and analyzing system performance.  Imagine that two users are hitting the same web request at the same time.  If we look at the log file, everything could be interleaving and it would be quite confusing without the context, in this case, a request id or user id.
+It may seems somewhat redundant to log the same data multiple times but it is invaluable in debugging production problems and even analyzing system performance.  Imagine that two users are hitting the same web request at the same time.  If we look at the log file, everything could be interleaving and it would be quite confusing without the context.
+
+In microservices design, Correlation ID is used to track the activities of a transaction across multiple services.  When all microservices output the same Correlation ID to the log, we can trace the complete path of the distributed system.
 
 ## Usage
 
@@ -60,11 +62,16 @@ julia> c.data
 Dict{Any,Any} with 0 entries
 ```
 
-## TODO
+## Todo's
 
-We may do some of the cool things below:
+Some thoughts:
 
-- Allow registering pre/post hooks for specific context updates. For example, we can do something special when function C is called from function A but not from function B.
-- ContextLogger should accept any kind of formatter that can work with Dicts.
--
+- ContextLogger should accept any kind of log formatter
+- Allow registering pre/post hooks for specific context updates.
+- Enhance `@memo` macro to accept multiple variable reference
+
+## Similar Projects
+
+Using [Cassette.jl](https://github.com/jrevels/Cassette.jl), we can achieve similar result by overdubbing functions such that the context is saved/restored in the prehook/posthook.  Its facility is more powerful and general than this package.
+
 
