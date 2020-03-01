@@ -34,11 +34,11 @@ julia> @ctx function bar()
            @info "inside bar" y
        end;
 
-julia> with_logger(ContextLogger()) do
+julia> with_logger(ContextLogger(include_trace_path = true)) do
            foo()
        end
-2020-03-01T00:35:41.883-08:00 level=INFO message="inside bar" x=1 y=2
-2020-03-01T00:35:41.903-08:00 level=INFO message="after bar" x=1
+2020-03-01T01:12:05.455-08:00 level=INFO message="inside bar" .TracePath=foo.bar x=1 y=2
+2020-03-01T01:12:05.493-08:00 level=INFO message="after bar" .TracePath=foo x=1
 ```
 
 ## Working with the Context object
