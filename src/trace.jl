@@ -1,35 +1,18 @@
 """
-    @ctx
+    @ctx <function definition> [label]
 
 Define a function that is context-aware i.e. save the current context
 before executing the function and restore the context right before
 returning to the caller. So, if the function modifies the context
 using (see [`@memo`](@ref)), then the change is not visible the caller.
 
-An optional string can be added at the end of function definition for
-tracking the call path.  Otherwise, function name is used.
-
-# Example
-```
-julia> @ctx function foo()
-    @memo x = 1
-    bar()
-    @info context().data
-end "Foo";
-
-julia> @ctx function bar()
-    @memo y = 2
-    @info context().data
-end;
-
-julia> foo()
-[ Info: Dict{Any,Any}("x" => 1,"_ContextPath" => "Foo.bar","y" => 2)
-[ Info: Dict{Any,Any}("x" => 1,"_ContextPath" => "Foo")
+An optional label of type symbol/string can be added at the end of function definition for
+tracking the call path.  Function name is used when the label is not provided.
 ```
 """
 macro ctx(ex, label = nothing)
     def = splitdef(ex)
-    name = something(label, QuoteNode(def[:name]))
+    name = QuoteNode(label !== nothing ? Symbol(label) : def[:name])
     c = context()
     def[:body] = quote
         try
@@ -44,10 +27,11 @@ macro ctx(ex, label = nothing)
 end
 
 """
-    @memo
+    @memo var = expr
+    @memo var
 
 Stroe the variable/value from the assigment statement in the current
-context. See usage from [`@ctx`](@ref).
+context.
 """
 macro memo(ex)
     if typeof(ex) === Symbol
