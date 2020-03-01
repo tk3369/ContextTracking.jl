@@ -43,53 +43,29 @@ julia> foo()
 [ Info: after calling bar
 =#
 
-# The ContextLogger adds color to everything!
 using Logging
 
-context_logger = ContextLogger(stdout, Logging.Debug)
+context_logger = ContextLogger(min_level = Logging.Debug, include_trace_path = true)
 with_logger(context_logger) do
     foo()
 end
-
-using LoggingExtras, Logging
-log_file_handle = open("/tmp/test.log", write = true)
-log_level = Logging.Debug
-global_logger(
-    TeeLogger(
-        global_logger(),
-        ContextLogger(log_file_handle, log_level, true)
-    )
-)
-foo()
-close(log_file_handle)
-readlines("/tmp/test.log")
-
-# another starting point
-start() = foo()
-with_logger(context_logger) do
-    start()
-end
-
 #=
-2020-01-14T14:32:19.4-08:00 level=INFO message="before calling bar" _ContextPath=foo a=1 b=2
-2020-01-14T14:32:19.4-08:00 level=ERROR message=oops _ContextPath=foo.bar a=1 b=2 c=3 d=4
-2020-01-14T14:32:19.401-08:00 level=ERROR message=oops _ContextPath=foo.bar a=1 b=2 c=3 c=3 d=4
-2020-01-14T14:32:19.401-08:00 level=INFO message="cool stuffs" _ContextPath=foo.bar.cool a=1 b=2 c=3 x=1 y=hello
-2020-01-14T14:32:19.401-08:00 level=DEBUG message="debugging only" _ContextPath=foo.bar.cool a=1 b=2 c=3
-2020-01-14T14:32:19.401-08:00 level=INFO message="after calling bar" _ContextPath=foo a=1 b=2
+2020-03-01T00:05:45.203-08:00 level=INFO message="before calling bar" .TracePath=foo a=1 b=2
+2020-03-01T00:05:45.222-08:00 level=ERROR message=oops .TracePath=foo.bar a=1 b=2 c=3 d=4
+2020-03-01T00:05:45.243-08:00 level=ERROR message=oops .TracePath=foo.bar a=1 b=2 c=3 c=3 d=4
+2020-03-01T00:05:45.262-08:00 level=INFO message="cool stuffs" .TracePath=foo.bar.cool a=1 b=2 c=3 x=1 y=hello
+2020-03-01T00:05:45.287-08:00 level=DEBUG message="debugging only" .TracePath=foo.bar.cool a=1 b=2 c=3
+2020-03-01T00:05:45.321-08:00 level=INFO message="after calling bar" .TracePath=foo a=1 b=2
 =#
 
-# Logging to file
-
-log_file_path = "/tmp/test_context_tracker.log"
-log_file_handle = open(log_file_path, "a")
-try
-    context_logger = ContextLogger(log_file_handle, Logging.Debug)
-    with_logger(context_logger) do
-        foo()
-    end
-finally
-    close(log_file_handle)
+context_logger = ContextLogger()
+with_logger(context_logger) do
+    foo()
 end
-readlines(log_file_path)  # check
-rm(log_file_path)
+#=
+2020-03-01T00:06:11.449-08:00 level=INFO message="before calling bar" a=1 b=2
+2020-03-01T00:06:11.474-08:00 level=ERROR message=oops a=1 b=2 c=3 d=4
+2020-03-01T00:06:11.491-08:00 level=ERROR message=oops a=1 b=2 c=3 c=3 d=4
+2020-03-01T00:06:11.509-08:00 level=INFO message="cool stuffs" a=1 b=2 c=3 x=1 y=hello
+2020-03-01T00:06:11.53-08:00 level=INFO message="after calling bar" a=1 b=2
+=#

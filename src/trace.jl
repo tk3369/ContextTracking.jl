@@ -27,20 +27,20 @@ julia> foo()
 [ Info: Dict{Any,Any}("x" => 1,"_ContextPath" => "Foo")
 ```
 """
-macro ctx(ex, label::Symbol)
-    ctx = context()
+macro ctx(ex, label = nothing)
     def = splitdef(ex)
-    name = something(label, def[:name])
+    name = something(label, QuoteNode(def[:name]))
+    c = context()
     def[:body] = quote
         try
-            save($ctx)
-            ContextLib.trace!($ctx, $name)
+            save($c)
+            ContextLib.trace!($c, $name)
             $(def[:body])
         finally
-            restore($ctx)
+            restore($c)
         end
     end
-    esc(combinedef(def))
+    return esc(combinedef(def))
 end
 
 """
@@ -67,15 +67,14 @@ end
 """
     trace!(ctx, name)
 
-Push a new value to ctx[key] so
+Store the function name in the trace path in the context.
 """
-function trace!(ctx::Context{Dict{Any,Any}}, name::Symbol)
+function trace!(ctx::Context, name::Symbol)
     dct = ctx.data
-    key = Symbol(".TracePath")
-    if haskey(dct, key)
-        push!(dct[key], name)
+    if haskey(dct, TRACE_PATH_ID)
+        push!(dct[TRACE_PATH_ID], name)
     else
-        dct[key] = Symbol[name]
+        dct[TRACE_PATH_ID] = Symbol[name]
     end
     return dct
 end
