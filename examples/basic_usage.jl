@@ -1,6 +1,6 @@
 # Basic usages of @ctx and @memo macros
 
-using Revise, ContextLib
+using ContextLib
 
 @ctx function foo()
     @memo a = 1
@@ -13,8 +13,8 @@ end
 @ctx function bar()
     @memo c = 3
     d = 4
-    @error "oops" d
-    @error "oops" d c   # this would cause duplicate!
+    @info "inside bar" d
+    @info "inside bar" d c   # this would cause duplicate!
     cool()
 end
 
@@ -45,17 +45,17 @@ julia> foo()
 
 using Logging
 
-context_logger = ContextLogger(min_level = Logging.Debug, include_trace_path = true)
+context_logger = ContextLogger(min_level = Logging.Debug, include_context_path = true)
 with_logger(context_logger) do
     foo()
 end
 #=
-2020-03-01T00:05:45.203-08:00 level=INFO message="before calling bar" .TracePath=foo a=1 b=2
-2020-03-01T00:05:45.222-08:00 level=ERROR message=oops .TracePath=foo.bar a=1 b=2 c=3 d=4
-2020-03-01T00:05:45.243-08:00 level=ERROR message=oops .TracePath=foo.bar a=1 b=2 c=3 c=3 d=4
-2020-03-01T00:05:45.262-08:00 level=INFO message="cool stuffs" .TracePath=foo.bar.cool a=1 b=2 c=3 x=1 y=hello
-2020-03-01T00:05:45.287-08:00 level=DEBUG message="debugging only" .TracePath=foo.bar.cool a=1 b=2 c=3
-2020-03-01T00:05:45.321-08:00 level=INFO message="after calling bar" .TracePath=foo a=1 b=2
+2020-03-01T00:05:45.203-08:00 level=INFO message="before calling bar" .ContextPath=foo a=1 b=2
+2020-03-01T00:05:45.222-08:00 level=ERROR message=oops .ContextPath=foo.bar a=1 b=2 c=3 d=4
+2020-03-01T00:05:45.243-08:00 level=ERROR message=oops .ContextPath=foo.bar a=1 b=2 c=3 c=3 d=4
+2020-03-01T00:05:45.262-08:00 level=INFO message="cool stuffs" .ContextPath=foo.bar.cool a=1 b=2 c=3 x=1 y=hello
+2020-03-01T00:05:45.287-08:00 level=DEBUG message="debugging only" .ContextPath=foo.bar.cool a=1 b=2 c=3
+2020-03-01T00:05:45.321-08:00 level=INFO message="after calling bar" .ContextPath=foo a=1 b=2
 =#
 
 context_logger = ContextLogger()

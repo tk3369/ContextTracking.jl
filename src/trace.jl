@@ -54,10 +54,10 @@ Store the function name in the trace path in the context.
 """
 function trace!(ctx::Context, name::Symbol)
     dct = ctx.data
-    if haskey(dct, TRACE_PATH_ID)
-        push!(dct[TRACE_PATH_ID], name)
+    if haskey(dct, CONTEXT_PATH_KEY)
+        push!(dct[CONTEXT_PATH_KEY], name)
     else
-        dct[TRACE_PATH_ID] = Symbol[name]
+        dct[CONTEXT_PATH_KEY] = Symbol[name]
     end
     return dct
 end

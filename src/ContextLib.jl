@@ -10,7 +10,8 @@ export context, save, restore
 export @ctx, @memo
 export ContextLogger
 
-include("constants.jl")
+include("types.jl")
+include("verbose.jl")
 include("context.jl")
 include("singleton.jl")
 include("trace.jl")

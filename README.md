@@ -36,11 +36,11 @@ julia> @ctx function bar()
            @info "inside bar" y
        end;
 
-julia> with_logger(ContextLogger(include_trace_path = true)) do
+julia> with_logger(ContextLogger(include_context_path = true)) do
            foo()
        end
-2020-03-01T01:12:05.455-08:00 level=INFO message="inside bar" .TracePath=foo.bar x=1 y=2
-2020-03-01T01:12:05.493-08:00 level=INFO message="after bar" .TracePath=foo x=1
+2020-03-01T01:12:05.455-08:00 level=INFO message="inside bar" .ContextPath=foo.bar x=1 y=2
+2020-03-01T01:12:05.493-08:00 level=INFO message="after bar" .ContextPath=foo x=1
 ```
 
 ## Working with the Context object
@@ -53,10 +53,10 @@ The `context` function returns a `Context` object with the following properties:
 
 ```julia
 julia> c = context()
-Context 1 with 1 generation(s)
+Context(id=0x10000011a3f3610,generations=1)
 
 julia> c.id
-1
+0x010000011a3f3610
 
 julia> c.data
 Dict{Any,Any} with 0 entries
