@@ -1,6 +1,6 @@
 # Basic usages of @ctx and @memo macros
 
-using ContextLib
+using ContextTracking
 
 @ctx function foo()
     @memo a = 1

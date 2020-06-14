@@ -1,5 +1,5 @@
 # Threads
-using ContextLib
+using ContextTracking
 using Logging
 
 @show Threads.nthreads();
@@ -17,7 +17,7 @@ end
 end
 
 # Turn on debugging
-ContextLib.set_verbose!(false)
+ContextTracking.set_verbose!(false)
 
 # Asyncmap
 with_logger(ContextLogger(include_context_path = true, include_context_id = true)) do

@@ -15,11 +15,11 @@ macro ctx(ex, label = nothing)
     name = QuoteNode(label !== nothing ? Symbol(label) : def[:name])
     def[:body] = quote
         try
-            save(ContextLib.context())
-            ContextLib.trace!(ContextLib.context(), $name)
+            save(ContextTracking.context())
+            ContextTracking.trace!(ContextTracking.context(), $name)
             $(def[:body])
         finally
-            restore(ContextLib.context())
+            restore(ContextTracking.context())
         end
     end
     return esc(combinedef(def))
@@ -43,7 +43,7 @@ macro memo(ex)
     sym = QuoteNode(x)
     return quote
         val = $(esc(ex))
-        push!(ContextLib.context(), $sym => val)
+        push!(ContextTracking.context(), $sym => val)
     end
 end
 

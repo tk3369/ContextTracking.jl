@@ -1,6 +1,6 @@
-# ContextLib.jl
+# ContextTracking.jl
 
-ContextLib is used to keep track of execution context.  The context data is kept in a stack data structure.  When a function is called, the context is saved.  When the function exits, the context is restored.  Hence, any change to the context during execution is visible to current and called functions only.
+ContextTracking is used to keep track of execution context.  The context data is kept in a stack data structure.  When a function is called, the context is saved.  When the function exits, the context is restored.  Hence, any change to the context during execution is visible to current and called functions only.
 
 Participation of context tracking is voluntary - you must annotate functions with `@ctx` macro to get in the game.  The easiest way to append data to the context is to use the `@memo` macro in front of an assignment statement or a variable reference. Context data is automatically logged when using the `ContextLogger`.
 
@@ -23,7 +23,7 @@ Just 3 simple steps:
 Example:
 
 ```julia
-julia> using ContextLib, Logging
+julia> using ContextTracking, Logging
 
 julia> @ctx function foo()
            @memo x = 1
@@ -77,10 +77,10 @@ It would be translated to something like:
 ```julia
 function foo()
     try
-        save(ContextLib.context())
+        save(ContextTracking.context())
         @info "Inside Foo"
     finally
-        restore(ContextLib.context())
+        restore(ContextTracking.context())
     end
 end
 ```
@@ -99,7 +99,7 @@ It would be translated to something like:
 
 ```julia
 val = 1
-push!(ContextLib.context(), :x => val)
+push!(ContextTracking.context(), :x => val)
 ```
 
 It is highly advise that you only use `@memo` in functions that are annotated with `@ctx` macro.  Failing to do so would leak your data to the parent function's context, which is usually not a desirable effect.
@@ -117,7 +117,7 @@ Logging
 - Write a JSON logging adapter
 - Example for logging to ELK stack
 
-Should we separate logging facility to separate package?  So people using ContextLib doesn't have to get its logging function?
+Should we separate logging facility to separate package?  So people using ContextTracking doesn't have to get its logging function?
 
 ## Similar Projects
 
