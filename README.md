@@ -1,16 +1,20 @@
+[![Travis Build Status](https://travis-ci.org/tk3369/ContextTracking.jl.svg?branch=master)](https://travis-ci.org/tk3369/ContextTracking.jl)
+[![codecov.io](http://codecov.io/github/tk3369/ContextTracking.jl/coverage.svg?branch=master)](http://codecov.io/github/tk3369/ContextTracking.jl?branch=master)
+
+
 # ContextTracking.jl
 
-ContextTracking is used to keep track of execution context.  The context data is kept in a stack data structure.  When a function is called, the context is saved.  When the function exits, the context is restored.  Hence, any change to the context during execution is visible to current and called functions only.
+ContextTracking is used to keep track of execution context.  The context data is kept in a stack data structure.  When a function is called, the context is saved.  When the function exits, the context is restored.  Hence, any change to the context during execution is visible to current and deeper stack frames only.
 
-Participation of context tracking is voluntary - you must annotate functions with `@ctx` macro to get in the game.  The easiest way to append data to the context is to use the `@memo` macro in front of an assignment statement or a variable reference. Context data is automatically logged when using the `ContextLogger`.
+Participation of context tracking is voluntary - you must annotate functions with `@ctx` macro to get in the game.  Then,you can append data to the context fairly easily using the `@memo` macro in front of an assignment statement or a variable reference. Finally, context data is dumped automatically using the `ContextLogger`.
 
 ## Motivation
 
-Suppose that we are processing a web request.  We may want to create a request id to keep track of the request and include the request id whenever we write anything to the log file.
+Suppose that we are processing a web request.  We may want to create a request id to keep track of the request and include the request id whenever we write anything to the log file during any part of the processing of that request.
 
-It may seems somewhat redundant to log the same data multiple times but it is invaluable in debugging production problems and even analyzing system performance.  Imagine that two users are hitting the same web request at the same time.  If we look at the log file, everything could be interleaving and it would be quite confusing without the context.
+It may seems somewhat redundant to log the same data multiple times but it is invaluable in debugging production problems.  Imagine that two users are hitting the same web request at the same time.  If we look at the log file, everything could be interleaving and it would be quite confusing without the context.
 
-In microservices design, Correlation ID is used to track the activities of a transaction across multiple services.  When all microservices output the same Correlation ID to the log, we can trace the complete path of the process.
+As context data is stored in a stack structure, you naturally gain more "knowledge" when going deeper into the execution stack. Then, you naturally "forget" about those details when the execution stack unwinds.  With this design, you can just memoize the most valuable knowledge needed in the log file.
 
 ## Basic Usage
 
@@ -18,7 +22,7 @@ Just 3 simple steps:
 
 1. Annotate functions with `@ctx` macro to participate in context tracking
 2. Use `@memo` macro to append data to the context
-3. Use the `ContextLogger` for logging context data, or use `context` function to access context data.
+3. Use the `ContextLogger` for logging context data or use `context` function to access context data.
 
 Example:
 
@@ -47,9 +51,9 @@ julia> with_logger(ContextLogger(include_context_path = true)) do
 
 The `context` function returns a `Context` object with the following properties:
 
-- `id`: context id, by default it is the thread id
+- `id`: context id, which is unique per current execution frame (even across async tasks or threads)
 - `data`: the data being tracked by the context.  By default, it is a `Dict`.
-- `generations`: number of context levels.
+- `generations`: current number of context levels in the stack frames.
 
 ```julia
 julia> c = context()
@@ -104,23 +108,19 @@ push!(ContextTracking.context(), :x => val)
 
 It is highly advise that you only use `@memo` in functions that are annotated with `@ctx` macro.  Failing to do so would leak your data to the parent function's context, which is usually not a desirable effect.
 
-## Todo's
+## Additional work
 
+General
 - Need more tests especially for the macros and logger
 - Convert README to Documenter.jl
-- Allow registering pre/post hooks for specific context updates
+
+Context
+- Allow registering pre/post hooks for specific context updates?
 - Enhance `@memo` macro to accept multiple variable reference
 
 Logging
-- ContextLogger should accept any kind of log formatter
-- Generic logging formatter interface
-- Write a JSON logging adapter
-- Example for logging to ELK stack
+- Perhaps move out and interop with LoggingExtras.jl / LoggingFacilities.jl instead
 
-Should we separate logging facility to separate package?  So people using ContextTracking doesn't have to get its logging function?
+## Related Projects
 
-## Similar Projects
-
-Using [Cassette.jl](https://github.com/jrevels/Cassette.jl), we can achieve similar result by overdubbing functions such that the context is saved/restored in the prehook/posthook.  Its facility is more powerful and general than this package.
-
-
+One can probably achieve similar result using [Cassette.jl](https://github.com/jrevels/Cassette.jl).
