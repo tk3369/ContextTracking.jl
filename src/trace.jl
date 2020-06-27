@@ -1,3 +1,6 @@
+"Special key for looking up the call path"
+const CALL_PATH_KEY = Symbol("_ContextPath_")
+
 """
     @ctx <function definition> [label]
 
@@ -56,10 +59,10 @@ Note that call path tracing only works for context
 """
 function trace!(ctx::Context{Dict{T,S}}, name::Symbol) where {T >: String, S >: Symbol}
     dct = ctx.data
-    if haskey(dct, CONTEXT_PATH_KEY)
-        push!(dct[CONTEXT_PATH_KEY], name)
+    if haskey(dct, CALL_PATH_KEY)
+        push!(dct[CALL_PATH_KEY], name)
     else
-        dct[CONTEXT_PATH_KEY] = Symbol[name]
+        dct[CALL_PATH_KEY] = Symbol[name]
     end
     return nothing
 end
@@ -72,6 +75,6 @@ trace!(ctx::Context, name::Symbol) = nothing
 
 Return the call path
 """
-call_path(ctx::Context{Dict{Any,Any}}) = get(ctx.data, CONTEXT_PATH_KEY, nothing)
+call_path(ctx::Context{Dict{Any,Any}}) = get(ctx.data, CALL_PATH_KEY, nothing)
 
 call_path(ctx::T) where {T <: Context} = error("Call path unavailabe for this context type: $T")
