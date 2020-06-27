@@ -1,4 +1,4 @@
-# Singleton implementation that is thread-safe
+# Singleton implementation that is thread-safe unique per async tasks
 
 const context_store = Dict{UInt, Context}()
 const context_store_lock = Base.Threads.SpinLock()
@@ -28,6 +28,11 @@ end
 Return a context name for the current thread.
 """
 function default_context_id()
+    # This id must be task/thread-unique.
+    # Current method reuse the most significant byte from the current task's pointer address.
+    # Limitations are:
+    # 1. Up to 256 threads are supported
+    # 2. Current task's pointer address may spill over to the MSB.
     return convert(UInt, Base.Threads.threadid()) << 56 +
            convert(UInt, pointer_from_objref(current_task()))
 end
