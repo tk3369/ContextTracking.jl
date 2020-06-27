@@ -42,6 +42,9 @@ Base.empty!(c::Context) = empty!(c.data)
 
 Base.length(c::Context) = length(c.data)
 
+Base.iterate(c::Context) = iterate(c.data)
+Base.iterate(c::Context, state) = iterate(c.data, state)
+
 # Property interface
 
 Base.propertynames(c::Context) = (:id, :data, :generations)
