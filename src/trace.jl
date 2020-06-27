@@ -29,14 +29,15 @@ end
     @memo var = expr
     @memo var
 
-Stroe the variable/value from the assigment statement in the current
+Store the variable/value from the assigment statement in the current
 context.
 """
 macro memo(ex)
-    if typeof(ex) === Symbol
+    # capture the variable
+    if ex isa Symbol          # @memo var
         x = ex
-    elseif @capture(ex, x_ = y_)
-        # intentionally blank since `x` and `y` are already assigned here
+    elseif ex.head === :(=)   # @memo var = expression
+        x = ex.args[1]
     else
         error("@memo must be followed by an assignment or a variable name.")
     end
@@ -61,3 +62,5 @@ function trace!(ctx::Context, name::Symbol)
     end
     return dct
 end
+
+call_path(ctx::Context{Dict{Any,Any}}) = get(ctx.data, CONTEXT_PATH_KEY, nothing)
