@@ -8,8 +8,8 @@
     push!(c, "key1" => 1)
     push!(c, "key2" => "hey")
     @test length(c) == 2
-    @test c.data["key1"] == 1
-    @test c.data["key2"] == "hey"
+    @test c["key1"] == 1
+    @test c["key2"] == "hey"
 
     # save current context to stack
     save(c)

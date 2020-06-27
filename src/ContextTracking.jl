@@ -11,7 +11,6 @@ export @ctx, @memo, call_path
 export ContextLogger
 
 include("types.jl")
-include("verbose.jl")
 include("context.jl")
 include("singleton.jl")
 include("trace.jl")
