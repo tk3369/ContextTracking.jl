@@ -120,6 +120,7 @@ threads or with `@async`.
 For example, if you run the program with 4 threads, then `context()` would return a separate
 context when it is called from the individual threads.  Likewise for async tasks.
 
+<<<<<<< HEAD
 ```julia
 julia> using Base.Threads
 
@@ -148,6 +149,12 @@ Base.getindex    # retrieving context value by Symbol
 Base.iterate
 ```
 
+=======
+Context
+- Allow registering pre/post hooks for specific context updates?
+- Enhance `@memo` macro to accept multiple variable reference
+
+>>>>>>> 674146d3b4a5841fea3a6b82981d46b3e23ccee1
 ## Related Projects
 
 One can probably achieve similar result using [Cassette.jl](https://github.com/jrevels/Cassette.jl).
