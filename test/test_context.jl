@@ -14,22 +14,25 @@
     # save current context to stack
     save(c)
     @test c.generations == 2   # current + one saved context
-    @test length(c.data) == 2
+    @test length(c) == 2
 
-    # add more "color" to current context
+    # add more "color" to current context.  Assumes Dict.
     push!(c, "key3" => :cool)
-    @test length(c.data) == 3
+    @test length(c) == 3
     @test sort(collect(keys(c.data))) == ["key1", "key2", "key3"]
 
     # restore the prior context
     restore(c)
     @test c.generations == 1
-    @test length(c.data) == 2
+    @test length(c) == 2
     @test sort(collect(keys(c.data))) == ["key1", "key2"]
+
+    # test iterability
+    @test length(collect(c)) == 2
 
     # empty context data
     empty!(c)
-    @test length(c.data) == 0
+    @test length(c) == 0
 end
 
 @testset "Non-Dict context data" begin
