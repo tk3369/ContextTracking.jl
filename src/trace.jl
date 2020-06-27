@@ -29,14 +29,15 @@ end
     @memo var = expr
     @memo var
 
-Stroe the variable/value from the assigment statement in the current
+Store the variable/value from the assigment statement in the current
 context.
 """
 macro memo(ex)
-    if typeof(ex) === Symbol
+    # capture the variable
+    if ex isa Symbol          # @memo var
         x = ex
-    elseif @capture(ex, x_ = y_)
-        # intentionally blank since `x` and `y` are already assigned here
+    elseif ex.head === :(=)   # @memo var = expression
+        x = ex.args[1]
     else
         error("@memo must be followed by an assignment or a variable name.")
     end
@@ -51,13 +52,26 @@ end
     trace!(ctx, name)
 
 Store the function name in the trace path in the context.
+Note that call path tracing only works for context
 """
-function trace!(ctx::Context, name::Symbol)
+function trace!(ctx::Context{Dict{T,S}}, name::Symbol) where {T >: String, S >: Symbol}
     dct = ctx.data
     if haskey(dct, CONTEXT_PATH_KEY)
         push!(dct[CONTEXT_PATH_KEY], name)
     else
         dct[CONTEXT_PATH_KEY] = Symbol[name]
     end
-    return dct
+    return nothing
 end
+
+# fallback
+trace!(ctx::Context, name::Symbol) = nothing
+
+"""
+    call_path(::Context{Dict{Any,Any}})
+
+Return the call path
+"""
+call_path(ctx::Context{Dict{Any,Any}}) = get(ctx.data, CONTEXT_PATH_KEY, nothing)
+
+call_path(ctx::T) where {T <: Context} = error("Call path unavailabe for this context type: $T")

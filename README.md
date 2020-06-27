@@ -102,7 +102,7 @@ The `@memo` macro is used to append new data to the current context.  Consider t
 It would be translated to something like:
 
 ```julia
-val = 1
+val = (x = 1)
 push!(ContextTracking.context(), :x => val)
 ```
 
