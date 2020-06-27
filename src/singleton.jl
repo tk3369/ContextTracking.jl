@@ -15,7 +15,6 @@ function context(; id = default_context_id(), container = Dict())
     try
         lock(context_store_lock)
         return get!(context_store, id) do
-            verbose_log(id, "creating new context id=$id")
             Context(id, container)
         end
     finally

@@ -3,7 +3,6 @@ $(TYPEDSIGNATURES)
 Create a context with the provided container.
 """
 function Context(id::UInt, container::T) where {T}
-    verbose_log(id, "creating new context $id with container $T")
     history = Stack{T}()
     push!(history, container)
     return Context(id, history)
@@ -14,7 +13,6 @@ $(TYPEDSIGNATURES)
 Save the current context to history.
 """
 function save(c::Context)
-    # verbose_log(c, "saving context")
     push!(getfield(c, :history), deepcopy(c.data))
 end
 
@@ -23,7 +21,6 @@ $(TYPEDSIGNATURES)
 Restore to the last saved context.
 """
 function restore(c::Context)
-    # verbose_log(c, "restoring context")
     pop!(getfield(c, :history))
 end
 
@@ -36,7 +33,6 @@ end
 # Standard context management
 
 function Base.push!(c::Context, entry)
-    verbose_log(c, "Appending to context ", c.hex_id, " with ", entry)
     push!(c.data, entry)
 end
 
