@@ -6,7 +6,7 @@
 
 ContextTracking is used to keep track of execution context.  The context data is kept in a stack data structure.  When a function is called, the context is saved.  When the function exits, the context is restored.  Hence, any change to the context during execution is visible to current and deeper stack frames only.
 
-Participation of context tracking is voluntary - you must annotate functions with `@ctx` macro to get in the game.  Then,you can append data to the context fairly easily using the `@memo` macro in front of an assignment statement or a variable reference. Finally, context data is dumped automatically using the `ContextLogger`.
+Participation of context tracking is voluntary - you must annotate functions with `@ctx` macro to get in the game.  Then, you can append data to the context fairly easily using the `@memo` macro in front of an assignment statement or a variable reference.
 
 ## Motivation
 
@@ -22,29 +22,31 @@ Just 3 simple steps:
 
 1. Annotate functions with `@ctx` macro to participate in context tracking
 2. Use `@memo` macro to append data to the context
-3. Use the `ContextLogger` for logging context data or use `context` function to access context data.
+3. Use `context` function to access context data.
 
 Example:
 
 ```julia
-julia> using ContextTracking, Logging
+using ContextTracking
 
-julia> @ctx function foo()
-           @memo x = 1
-           bar()
-           @info "after bar"
-       end;
+@ctx function foo()
+    @memo x = 1
+    bar()
+end
 
-julia> @ctx function bar()
-           y = 2
-           @info "inside bar" y
-       end;
+@ctx function bar()
+    c = context()
+    @show c.data
+end
+```
 
-julia> with_logger(ContextLogger(include_context_path = true)) do
-           foo()
-       end
-2020-03-01T01:12:05.455-08:00 level=INFO message="inside bar" .ContextPath=foo.bar x=1 y=2
-2020-03-01T01:12:05.493-08:00 level=INFO message="after bar" .ContextPath=foo x=1
+Result:
+```julia
+julia> foo()
+c.data = Dict{Any,Any}(:_ContextPath_ => [:foo, :bar],:x => 1)
+Dict{Any,Any} with 2 entries:
+  :_ContextPath_ => [:foo, :bar]
+  :x             => 1
 ```
 
 ## Working with the Context object
@@ -53,7 +55,8 @@ The `context` function returns a `Context` object with the following properties:
 
 - `id`: context id, which is unique per current execution frame (even across async tasks or threads)
 - `data`: the data being tracked by the context.  By default, it is a `Dict`.
-- `generations`: current number of context levels in the stack frames.
+- `generations`: current number of context levels in the stack frames
+- `hex_id`: same as `id`, represented as a hexadecimal string
 
 ```julia
 julia> c = context()
@@ -89,7 +92,7 @@ function foo()
 end
 ```
 
-The purpose of the save/restore operation is to guarantee that context data is _pushed down_ the execution chain (single direction).  So if the `foo` function calls another function that modifies the context, it will be restored when the `foo` function is returned.
+The purpose of the save/restore operation is to guarantee that context data is visible only during the current execution chain - inside the current function or any subsequent functions being called from here.
 
 ## How does `@memo` macro work?
 
@@ -108,18 +111,42 @@ push!(ContextTracking.context(), :x => val)
 
 It is highly advise that you only use `@memo` in functions that are annotated with `@ctx` macro.  Failing to do so would leak your data to the parent function's context, which is usually not a desirable effect.
 
-## Additional work
+## Is it thread-safe?
 
-General
-- Need more tests especially for the macros and logger
-- Convert README to Documenter.jl
+The `context()` always return a `Context` object that is unique by thread and async tasks.
+Therefore, the context data is managed properly even when you run your program using multiple
+threads or with `@async`.
 
-Context
-- Allow registering pre/post hooks for specific context updates?
-- Enhance `@memo` macro to accept multiple variable reference
+For example, if you run the program with 4 threads, then `context()` would return a separate
+context when it is called from the individual threads.  Likewise for async tasks.
 
-Logging
-- Perhaps move out and interop with LoggingExtras.jl / LoggingFacilities.jl instead
+```julia
+julia> using Base.Threads
+
+julia> Threads.nthreads()
+4
+
+julia> Threads.@threads for i in 1:4
+           println("Thread ", threadid(), " has context ", context().hex_id)
+       end
+Thread 3 has context 0x30000011092bcd0
+Thread 2 has context 0x20000011092ba90
+Thread 1 has context 0x10000011092b850
+Thread 4 has context 0x40000011098c010
+```
+
+## What if I don't want to use Dict for storing my context?
+
+The `Context` type allows you to use a different container type if you want to use something
+different.  The only requirement is that the container type must implement the following functions:
+
+```julia
+Base.length
+Base.push!       # accepting Pair{Symbol,Any}
+Base.empty!
+Base.getindex    # retrieving context value by Symbol
+Base.iterate
+```
 
 ## Related Projects
 
