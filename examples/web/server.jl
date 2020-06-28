@@ -16,12 +16,10 @@ function start_server(host, port)
     return (task = task, socket = socket)
 end
 
-@ctx function process_request()
-    context_data = context().data
-    return "My correlation_id is " * string(context_data[:correlation_id])
+@ctx function process_request(http)
+    correlation_id = context()[:correlation_id]
+    return "My correlation_id is $correlation_id"
 end
-
-
 
 function stop_server(server)
     try
