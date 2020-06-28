@@ -1,6 +1,6 @@
 [![Travis Build Status](https://travis-ci.org/tk3369/ContextTracking.jl.svg?branch=master)](https://travis-ci.org/tk3369/ContextTracking.jl)
 [![codecov.io](http://codecov.io/github/tk3369/ContextTracking.jl/coverage.svg?branch=master)](http://codecov.io/github/tk3369/ContextTracking.jl?branch=master)
-
+![Project Status](https://img.shields.io/badge/status-production-blue)
 
 # ContextTracking.jl
 
@@ -113,7 +113,7 @@ It is highly advise that you only use `@memo` in functions that are annotated wi
 
 ## Is it thread-safe?
 
-The `context()` always return a `Context` object that is unique by thread and async tasks.
+The `context()` function always return a `Context` object that is unique by thread and async tasks.
 Therefore, the context data is managed properly even when you run your program using multiple
 threads or with `@async`.
 
