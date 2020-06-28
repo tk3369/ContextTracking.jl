@@ -1,0 +1,9 @@
+# This file is machine-generated - editing it directly is not advised
+
+[[Logging]]
+uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
+
+[[LoggingExtras]]
+git-tree-sha1 = "b60616c70eff0cc2c0831b6aace75940aeb0939d"
+uuid = "e6f89c97-d47a-5376-807f-9c37f3926c36"
+version = "0.4.1"
