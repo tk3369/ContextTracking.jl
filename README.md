@@ -15,7 +15,7 @@ The usage is embarassingly simple:
 
 Suppose that we are [processing a web request](images/web_service_example.png).  We may want to create a [correlation id](https://blog.rapid7.com/2016/12/23/the-value-of-correlation-ids/) to keep track of the request and include the request id whenever we write anything to the log file during any part of the processing of that request.
 
-![](images/web_service_example.png | width=300)
+![](https://github.com/tk3369/ContextTracking.jl/raw/master/images/web_service_example.png | width=300)
 
 It may seems somewhat redundant to log the same data multiple times but it is invaluable in debugging production problems.  Imagine that two users are hitting the same web service at the same time.  If we look at the log file, everything could be interleaving and it would be quite confusing without the context.
 
