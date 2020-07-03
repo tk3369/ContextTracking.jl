@@ -31,17 +31,18 @@ end
 
 @ctx function bar()
     c = context()
-    @show c.data
+    @info "context data" c.data
 end
 ```
 
 Result:
 ```julia
 julia> foo()
-c.data = Dict{Any,Any}(:_ContextPath_ => [:foo, :bar],:x => 1)
-Dict{Any,Any} with 2 entries:
-  :_ContextPath_ => [:foo, :bar]
-  :x             => 1
+┌ Info: context data
+│   c.data =
+│    Dict{Any,Any} with 2 entries:
+│      :_ContextPath_ => [:foo, :bar]
+└      :x             => 1
 ```
 
 ## Working with the Context object
