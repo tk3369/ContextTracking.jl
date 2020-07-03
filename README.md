@@ -4,27 +4,22 @@
 
 # ContextTracking.jl
 
-ContextTracking is used to keep track of execution context.  The context data is kept in a stack data structure.  When a function is called, the context is saved.  When the function exits, the context is restored.  Hence, any change to the context during execution is visible to current and deeper stack frames only.
+ContextTracking is used to keep track of execution context.  The context data is kept in a stack data structure.  When a function is called, the context is saved.  When the function exits, the context is restored.  User can make changes to the context during execution, and the data is visible to both the current and deeper stack frames.  
 
-Participation of context tracking is voluntary - you must annotate functions with `@ctx` macro to get in the game.  Then, you can append data to the context fairly easily using the `@memo` macro in front of an assignment statement or a variable reference.
+The usage is embarassingly simple:
+1. Annotate functions with `@ctx` macro
+2. Attach context data using the `@memo` macro
+3. Access context data anywhere using the `context` function
 
 ## Motivation
 
 Suppose that we are processing a web request.  We may want to create a request id to keep track of the request and include the request id whenever we write anything to the log file during any part of the processing of that request.
 
-It may seems somewhat redundant to log the same data multiple times but it is invaluable in debugging production problems.  Imagine that two users are hitting the same web request at the same time.  If we look at the log file, everything could be interleaving and it would be quite confusing without the context.
+It may seems somewhat redundant to log the same data multiple times but it is invaluable in debugging production problems.  Imagine that two users are hitting the same web service at the same time.  If we look at the log file, everything could be interleaving and it would be quite confusing without the context.
 
 As context data is stored in a stack structure, you naturally gain more "knowledge" when going deeper into the execution stack. Then, you naturally "forget" about those details when the execution stack unwinds.  With this design, you can just memoize the most valuable knowledge needed in the log file.
 
-## Basic Usage
-
-Just 3 simple steps:
-
-1. Annotate functions with `@ctx` macro to participate in context tracking
-2. Use `@memo` macro to append data to the context
-3. Use `context` function to access context data.
-
-Example:
+## Example
 
 ```julia
 using ContextTracking
@@ -53,9 +48,9 @@ Dict{Any,Any} with 2 entries:
 
 The `context` function returns a `Context` object with the following properties:
 
-- `id`: context id, which is unique per current execution frame (even across async tasks or threads)
+- `id`: context id, which is unique per task/thread
 - `data`: the data being tracked by the context.  By default, it is a `Dict`.
-- `generations`: current number of context levels in the stack frames
+- `generations`: number of context levels in the stack
 - `hex_id`: same as `id`, represented as a hexadecimal string
 
 ```julia
@@ -79,7 +74,7 @@ By annotating a function with `@ctx` macro, the function body is wrapped by code
 end
 ```
 
-It would be translated to something like:
+It would be translated to something like this:
 
 ```julia
 function foo()
@@ -96,7 +91,7 @@ The purpose of the save/restore operation is to guarantee that context data is v
 
 ## How does `@memo` macro work?
 
-The `@memo` macro is used to append new data to the current context.  Consider the following example:
+The `@memo` macro is used to assign data to the current context.  Consider the following example:
 
 ```julia
 @memo x = 1
@@ -141,10 +136,10 @@ The `Context` type allows you to use a different container type if you want to u
 different.  The only requirement is that the container type must implement the following functions:
 
 ```julia
-Base.length
 Base.push!       # accepting Pair{Symbol,Any}
-Base.empty!
 Base.getindex    # retrieving context value by Symbol
+Base.length
+Base.empty!
 Base.iterate
 ```
 
