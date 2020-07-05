@@ -1,6 +1,3 @@
-"Special key for looking up the call path"
-const CALL_PATH_KEY = Symbol("_ContextPath_")
-
 """
     @ctx <function definition> [label]
 
@@ -8,9 +5,6 @@ Define a function that is context-aware i.e. save the current context
 before executing the function and restore the context right before
 returning to the caller. So, if the function modifies the context
 using (see [`@memo`](@ref)), then the change is not visible the caller.
-
-An optional label of type symbol/string can be added at the end of function definition for
-tracking the call path.  Function name is used when the label is not provided.
 ```
 """
 macro ctx(ex, label = nothing)
@@ -57,24 +51,7 @@ end
 Store the function name in the trace path in the context.
 Note that call path tracing only works for context
 """
-function trace!(ctx::Context{Dict{T,S}}, name::Symbol) where {T >: String, S >: Symbol}
-    dct = ctx.data
-    if haskey(dct, CALL_PATH_KEY)
-        push!(dct[CALL_PATH_KEY], name)
-    else
-        dct[CALL_PATH_KEY] = Symbol[name]
-    end
+function trace!(ctx::Context, name::Symbol)
+    push!(ctx.path, name)
     return nothing
 end
-
-# fallback
-trace!(ctx::Context, name::Symbol) = nothing
-
-"""
-    call_path(::Context{Dict{Any,Any}})
-
-Return the call path
-"""
-call_path(ctx::Context{Dict{Any,Any}}) = get(ctx.data, CALL_PATH_KEY, nothing)
-
-call_path(ctx::T) where {T <: Context} = error("Call path unavailabe for this context type: $T")

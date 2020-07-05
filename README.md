@@ -4,7 +4,7 @@
 
 # ContextTracking.jl
 
-ContextTracking is used to keep track of execution context.  The context data is kept in a stack data structure.  When a function is called, the context is saved.  When the function exits, the context is restored.  User can make changes to the context during execution, and the data is visible to both the current and deeper stack frames.  
+ContextTracking is used to keep track of execution context.  The context data is kept in a stack data structure.  When a function is called, the context is saved.  When the function exits, the context is restored.  User can make changes to the context during execution, and the data is visible to both the current and deeper stack frames.
 
 The usage is embarassingly simple:
 1. Annotate functions with `@ctx` macro
@@ -41,7 +41,6 @@ julia> foo()
 ┌ Info: context data
 │   c.data =
 │    Dict{Any,Any} with 2 entries:
-│      :_ContextPath_ => [:foo, :bar]
 └      :x             => 1
 ```
 

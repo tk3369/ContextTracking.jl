@@ -5,7 +5,7 @@ Create a context with the provided container.
 function Context(id::UInt, container::T) where {T}
     history = Stack{T}()
     push!(history, container)
-    return Context(id, history)
+    return Context(id, history, Symbol[])
 end
 
 """
@@ -54,6 +54,7 @@ function Base.getproperty(c::Context, s::Symbol)
     s === :data && return first(getfield(c, :history))
     s === :generations && return length(getfield(c, :history))
     s === :hex_id && return string("0x", string(getfield(c, :id); base = 16))
+    s === :path && return getfield(c, :path)
     throw(UndefVarError("$s is not a valid property name."))
 end
 

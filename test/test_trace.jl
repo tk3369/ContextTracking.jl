@@ -17,7 +17,7 @@ module TracingTest
 
     @ctx function baz()
         c = context()
-        @test call_path(c) == [:foo, :bar, :baz]
+        @test c.path == [:foo, :bar, :baz]
         @test c.data[:x] == 1
         @test c.data[:y] == 2
         @test !haskey(c.data, :me)
