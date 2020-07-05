@@ -50,18 +50,22 @@ The `context` function returns a `Context` object with the following properties:
 
 - `id`: context id, which is unique per task/thread
 - `data`: the data being tracked by the context.  By default, it is a `Dict`.
+- `path`: the call path, an array of function names as recorded by `@ctx`
 - `generations`: number of context levels in the stack
 - `hex_id`: same as `id`, represented as a hexadecimal string
 
 ```julia
-julia> c = context()
-Context(id=0x10000011a3f3610,generations=1)
+julia> @ctx function foo()
+           @memo x = 1
+           c = context()
+           @show c.id c.path c.data
+           return nothing
+       end;
 
-julia> c.id
-0x010000011a3f3610
-
-julia> c.data
-Dict{Any,Any} with 0 entries
+julia> foo()
+c.id = 0x010000011a80f610
+c.path = [:foo]
+c.data = Dict{Any,Any}(:x => 1)
 ```
 
 ## How does `@ctx` macro work?
@@ -79,10 +83,10 @@ It would be translated to something like this:
 ```julia
 function foo()
     try
-        save(ContextTracking.context())
-        @info "Inside Foo"
+        # << inserted code to save context >>
+        @info "Your code inside Foo"
     finally
-        restore(ContextTracking.context())
+        # << inserted code to restore context >>
     end
 end
 ```
@@ -104,11 +108,11 @@ val = (x = 1)
 push!(ContextTracking.context(), :x => val)
 ```
 
-It is highly advise that you only use `@memo` in functions that are annotated with `@ctx` macro.  Failing to do so would leak your data to the parent function's context, which is usually not a desirable effect.
+It is highly recommended that you only use `@memo` in functions that are annotated with `@ctx` macro.  Failing to do so would leak your data to the parent function's context, which is *usually* not a desirable effect.
 
 ## Is it thread-safe?
 
-The `context()` function always return a `Context` object that is unique by thread and async tasks.
+The `context()` function always returns a `Context` object that is unique by thread / async task.
 Therefore, the context data is managed properly even when you run your program using multiple
 threads or with `@async`.
 
