@@ -11,12 +11,14 @@ macro ctx(ex, label = nothing)
     def = splitdef(ex)
     name = QuoteNode(label !== nothing ? Symbol(label) : def[:name])
     def[:body] = quote
+        c = ContextTracking.context()
         try
-            save(ContextTracking.context())
-            ContextTracking.trace!(ContextTracking.context(), $name)
+            save(c)
+            push!(c.path, $name)
             $(def[:body])
         finally
-            restore(ContextTracking.context())
+            pop!(c.path)
+            restore(c)
         end
     end
     return esc(combinedef(def))

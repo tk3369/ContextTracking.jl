@@ -8,11 +8,13 @@ module TracingTest
         @memo x = 1
         me = "not visible downstream"
         bar()
+        @test context().path == [:foo]
     end
 
     @ctx function bar()
         @memo y = 2
         baz()
+        @test context().path == [:foo, :bar]
     end
 
     @ctx function baz()
