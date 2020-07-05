@@ -7,7 +7,7 @@ using ExprTools: combinedef, splitdef
 
 export Context
 export context, save, restore
-export @ctx, @memo, call_path
+export @ctx, @memo
 
 include("types.jl")
 include("context.jl")

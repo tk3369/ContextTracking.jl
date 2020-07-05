@@ -8,16 +8,18 @@ module TracingTest
         @memo x = 1
         me = "not visible downstream"
         bar()
+        @test context().path == [:foo]
     end
 
     @ctx function bar()
         @memo y = 2
         baz()
+        @test context().path == [:foo, :bar]
     end
 
     @ctx function baz()
         c = context()
-        @test call_path(c) == [:foo, :bar, :baz]
+        @test c.path == [:foo, :bar, :baz]
         @test c.data[:x] == 1
         @test c.data[:y] == 2
         @test !haskey(c.data, :me)

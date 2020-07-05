@@ -14,5 +14,7 @@ struct Context{T}
     id::UInt
     "History of context data"
     history::Stack{T}
+    "Call path"
+    path::Vector{Symbol}
 end
 
