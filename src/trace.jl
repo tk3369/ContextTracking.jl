@@ -46,14 +46,3 @@ macro memo(ex)
         push!(ContextTracking.context(), $sym => val)
     end
 end
-
-"""
-    trace!(ctx, name)
-
-Store the function name in the trace path in the context.
-Note that call path tracing only works for context
-"""
-function trace!(ctx::Context, name::Symbol)
-    push!(ctx.path, name)
-    return nothing
-end
