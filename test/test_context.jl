@@ -42,6 +42,12 @@
     # empty context data
     empty!(c)
     @test length(c) == 0
+
+    # print
+    let io = IOBuffer()
+        print(io, c)
+        @test length(String(take!(io))) > 0
+    end
 end
 
 @testset "Custom container" begin
