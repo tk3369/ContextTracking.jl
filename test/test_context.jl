@@ -10,6 +10,7 @@
     @test length(c.hex_id) > 0
     @test c.path isa Vector{Symbol}
     @test length(c.path) == 0
+    @test propertynames(c) ∩ (:id, :hex_id, :generations, :data, :path) |> length == 5
 
     # add entries to current context
     push!(c, "key1" => 1)
@@ -38,6 +39,7 @@
 
     # test iterability
     @test length(collect(c)) == 2
+    @test length(kv for kv in c) === 2
 
     # empty context data
     empty!(c)
