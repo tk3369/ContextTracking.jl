@@ -39,7 +39,7 @@
 
     # test iterability
     @test length(collect(c)) == 2
-    @test length(kv for kv in c) === 2
+    @test length(kv for kv in c) == 2
 
     # empty context data
     empty!(c)
@@ -47,7 +47,7 @@
 
     # print
     let io = IOBuffer()
-        print(io, c)
+        show(io, c)
         @test length(String(take!(io))) > 0
     end
 end
