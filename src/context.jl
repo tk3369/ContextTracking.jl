@@ -47,7 +47,7 @@ Base.iterate(c::Context, state) = iterate(c.data, state)
 
 # Property interface
 
-Base.propertynames(c::Context) = (:id, :data, :generations)
+Base.propertynames(c::Context) = (:id, :data, :generations, :hex_id, :path)
 
 function Base.getproperty(c::Context, s::Symbol)
     s === :id && return getfield(c, :id)
@@ -55,6 +55,6 @@ function Base.getproperty(c::Context, s::Symbol)
     s === :generations && return length(getfield(c, :history))
     s === :hex_id && return string("0x", string(getfield(c, :id); base = 16))
     s === :path && return getfield(c, :path)
-    throw(UndefVarError("$s is not a valid property name."))
+    throw(UndefVarError(s))
 end
 

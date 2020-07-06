@@ -13,6 +13,8 @@ module TracingTest
 
     @ctx function bar()
         @memo y = 2
+        z = 3
+        @memo z
         baz()
         @test context().path == [:foo, :bar]
     end
@@ -22,6 +24,7 @@ module TracingTest
         @test c.path == [:foo, :bar, :baz]
         @test c.data[:x] == 1
         @test c.data[:y] == 2
+        @test c.data[:z] == 3
         @test !haskey(c.data, :me)
     end
 

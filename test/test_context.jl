@@ -1,13 +1,23 @@
 # context data management tests
 
-@testset "Basic Operation" begin
+@testset "Basic operations" begin
     c = context()
+
+    # property access
     @test c.generations == 1
+    @test c.id > 0
+    @test c.hex_id isa String
+    @test length(c.hex_id) > 0
+    @test c.path isa Vector{Symbol}
+    @test length(c.path) == 0
+    @test propertynames(c) ∩ (:id, :hex_id, :generations, :data, :path) |> length == 5
 
     # add entries to current context
     push!(c, "key1" => 1)
     push!(c, "key2" => "hey")
     @test length(c) == 2
+
+    # Test direct data access
     @test c["key1"] == 1
     @test c["key2"] == "hey"
 
@@ -29,13 +39,20 @@
 
     # test iterability
     @test length(collect(c)) == 2
+    @test length(kv for kv in c) == 2
 
     # empty context data
     empty!(c)
     @test length(c) == 0
+
+    # print
+    let io = IOBuffer()
+        show(io, c)
+        @test length(String(take!(io))) > 0
+    end
 end
 
-@testset "Non-Dict context data" begin
+@testset "Custom container" begin
     # create custom context; use random id to avoid getting the default
     c = context(id = UInt(rand(UInt)), container = String[])
     push!(c, "hello")
@@ -43,4 +60,9 @@ end
 
     @test length(c.data) == 2
     @test c.data == [ "hello", "world"]
+end
+
+@testset "Error handling" begin
+    c = context()
+    @test_throws UndefVarError c.whatever
 end
