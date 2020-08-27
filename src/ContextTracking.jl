@@ -6,7 +6,7 @@ using DocStringExtensions
 using ExprTools: combinedef, splitdef
 
 export Context
-export context, save, restore
+export context, restore
 export @ctx, @memo
 
 include("types.jl")
