@@ -10,15 +10,16 @@ using (see [`@memo`](@ref)), then the change is not visible the caller.
 macro ctx(ex, label = nothing)
     def = splitdef(ex)
     name = QuoteNode(label !== nothing ? Symbol(label) : def[:name])
+    ctx = gensym()
     def[:body] = quote
-        c = ContextTracking.context()
+        $ctx = ContextTracking.context()
         try
-            save(c)
-            push!(c.path, $name)
+            ContextTracking.save($ctx)
+            push!($ctx.path, $name)
             $(def[:body])
         finally
-            pop!(c.path)
-            restore(c)
+            pop!($ctx.path)
+            ContextTracking.restore($ctx)
         end
     end
     return esc(combinedef(def))
@@ -41,8 +42,9 @@ macro memo(ex)
         error("@memo must be followed by an assignment or a variable name.")
     end
     sym = QuoteNode(x)
-    return quote
-        val = $(esc(ex))
-        push!(ContextTracking.context(), $sym => val)
-    end
+    val = gensym()
+    return esc(quote
+        $val =$ex
+        push!(ContextTracking.context(), $sym => $val)
+    end)
 end
