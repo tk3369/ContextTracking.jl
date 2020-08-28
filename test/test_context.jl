@@ -22,7 +22,7 @@
     @test c["key2"] == "hey"
 
     # save current context to stack
-    save(c)
+    ContextTracking.save(c)
     @test c.generations == 2   # current + one saved context
     @test length(c) == 2
 
@@ -32,7 +32,7 @@
     @test sort(collect(keys(c.data))) == ["key1", "key2", "key3"]
 
     # restore the prior context
-    restore(c)
+    ContextTracking.restore(c)
     @test c.generations == 1
     @test length(c) == 2
     @test sort(collect(keys(c.data))) == ["key1", "key2"]
