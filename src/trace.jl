@@ -44,7 +44,7 @@ macro memo(ex)
     sym = QuoteNode(x)
     val = gensym()
     return esc(quote
-        $val =$ex
+        $val = $ex
         push!(ContextTracking.context(), $sym => $val)
     end)
 end
